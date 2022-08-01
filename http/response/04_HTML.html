@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>Send Date With POST method</h1>
+    <!-- action이 없는경우 현재페이지 주소가 액션의 속성값으로 들어감  -->
+    <!-- 즉 04_app.js로 가서 다시 서버요청하게됨 post방식으로  -->
+    <form method="post">
+
+        <table>
+            <tr>
+                <td><label>Data A</label></td>
+                <td><input type="text" name="data_a"></td>
+            </tr>
+            <tr>
+                <td><label>Data B</label></td>
+                <td><input type="text" name="data_b"></td>
+            </tr>
+        </table>
+        <input type="submit">
+    </form>
+</body>
+
+</html>
