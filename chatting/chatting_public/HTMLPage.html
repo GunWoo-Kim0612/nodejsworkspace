@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        //쿼리는 document.ready  (body 코드이후 진행됨)
+        window.onload = function () {
+            var socket = io.connect();  //소켓 연결
+
+            socket.on('smart', function (data) {
+                alert(data);
+            })
+
+
+            socket.on('setname', function (data) {
+                //h1태그 들어온 순서대로 user0,1,2,3
+                document.getElementById('Hname').innerHTML = data;
+            });
+
+
+            document.getElementById('button').onclick = function () {
+                var txt = document.getElementById('text').value;
+                var num = Number(document.getElementById('num').value);
+
+                socket.emit('rint', txt, num);
+            };
+        }
+    </script>
+</head>
+
+<body>
+    <h1 id="Hname"></h1>
+
+    <input type="text" id="text">
+    <br>
+    <input type="number" name="name" id="num">
+    <input type="button" id="button" value="echo">
+
+</body>
+
+</html>

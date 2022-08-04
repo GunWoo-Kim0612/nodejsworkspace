@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .line {
+            /* 자식 태그 float:left: ; 인경우 overflow:hidden 공식처럼씁시다 */
+            overflow: hidden;
+        }
+
+        .seat {
+            margin: 2px;
+            float: left;
+            width: 30px;
+            height: 30px;
+            border-radius: 3px;
+        }
+
+        .enable {
+            background: gray;
+        }
+
+        .enable:hover {
+            background: black;
+        }
+
+        .disable {
+            background: red;
+        }
+    </style>
+
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+
+
+
+    <script>
+
+        var socket = io.connect();
+
+
+        socket.on("reserve", function (data) {
+
+            var $target = $('div[data-x=' + data.x + '][data-y = ' + data.y + ']');
+
+            $target.removeClass('enable');
+
+            $target.addClass('disable');
+
+            $target.attr('seat_st', '2')
+        });
+        socket.on("cancel", function (data) {
+
+            var $target = $('div[data-x=' + data.x + '][data-y = ' + data.y + ']');
+
+            $target.removeClass('disable');
+
+            $target.addClass('enable');
+
+            $target.attr('seat_st', '1')
+        });
+
+    </script>
+    <!-- jquery -->
+    <script>
+
+
+        $(document).ready(function () {
+
+            //div 클릭시 이벤트핸들러
+            var onClickSeat = function () {
+                //클릭대상 this의 속성값 가져옴
+                var x = $(this).attr('data-x');
+                var y = $(this).attr('data-y');
+
+                var seat_st = $(this).attr('seat_st')
+                if (seat_st == 1 && confirm('예약?')) {             //confirm 확인 ->return true,  취소 return false
+                    // $(this).off('click');                        
+                    //배열값 2로바꿔줘요
+                    socket.emit('reserve', {
+                        x: x,
+                        y: y,
+                        seat_st: seat_st
+                    });
+                } else {
+                    alert('취소됨')
+                }
+
+                if (seat_st == 2 & confirm('취소?')) {
+                    alert('d?')
+
+                    socket.emit('cancel', {
+                        x: x,
+                        y: y,
+                        seat_st: seat_st
+                    });
+                }
+            };
+
+
+
+            //ajax 수행...
+            //getJSON (json형태의 데이터 요청), url /seats로부터 받은 매개변수 data를 통해 배열정보 받아옴
+            $.getJSON('/seats', { dummy: new Date().getTime() }, function (data) {
+                $.each(data, function (indexY, line) {                                                                          //indexY, 배열 전체read   line[i][ ] : 1행배열    
+                    var $line = $('<div></div>').addClass('line');                                                              //jquery 변수선언 var $name, 동적으로 추가된 div태그에 class line 속성 부여(css)
+
+                    $.each(line, function (indexX, seat) {                                                                      //indexX, 1행배열 read    seat[ ][j] : i 행 j열 
+
+                        var $output = $('<div></div>', {
+                            class: 'seat',
+                            'data-x': indexX,                                                                                   //data-x 라는 이름의 속성을 추가해줌 (my name)
+                            'data-y': indexY,
+                            'seat_st': seat
+                        }).appendTo($line);
+
+                        if (seat == 1) {
+                            $output.addClass('enable').on('click', onClickSeat) //onClickSeat : 메소드 ()없이 사용함
+                        } else if (seat == 2) {
+                            $output.addClass('disable')
+                        }
+
+                    });
+                    $line.appendTo('body');
+                });
+
+            });
+        });
+
+    </script>
+    <!-- socket -->
+
+</head>
+
+
+<body>
+</body>
+
+</html>

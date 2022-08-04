@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <!-- jquery mobile  -->
+    <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+    <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    <!-- 자바스크립트 제공 소켓정보 -->
+    <script src="/socket.io/socket.io.js"></script>
+
+
+    <script>
+        //document.ready  --> html body 코드가 진행되고 나서 실행됨   window.onload와 동일
+        $("#message").on("propertychange change keyup paste input", function () {
+            var currentVal = $(this).val();
+            if (currentVal == oldVal) {
+                return;
+            }
+
+            oldVal = currentVal;
+            alert("changed!");
+        });
+
+
+
+
+        $(function () {
+            var socket = io.connect();
+
+
+
+
+            socket.on('message', function (data) {
+                //서버에서 전달한 데이터 받아 ul tag에 동적으로 li tag로 message 띄우겠다.
+                var output = '';
+                output += '<li>';
+                output += '<h3>' + data.name + '</h3>';
+                output += '<p>' + data.message + '</p>';
+                output += '<p>' + data.date + '</p>';
+                output += '</li>';
+
+                console.log('data.message: ', data.message);
+                if ((String)(data.message) == '') {
+                    
+                } else {
+                    $(output).prependTo('#content');            //output 을 #content 끝에 추가
+                    $('#content').listview('refresh');
+                }
+
+
+
+                //동적으로 추가된 대상에 css가 적용되지 않는 문제를 해결하기 위한 코드
+            });
+
+            $('button').click(function () {
+                //서버측으로 데이터 전송 데이터는 객체형태  (input tag id=name, id=message)
+
+
+                socket.emit('message', {
+                    name: $('#name').val(),                 //쿼리 선택자, 값을 가져오는 val()함수
+                    message: $('#message').val(),
+                    date: new Date().toUTCString()           //날짜정보도 포함
+                })
+
+
+            });
+
+
+        });
+
+
+    </script>
+</head>
+
+<body>
+    <div data-role="page">
+        <div data-role="header">
+            <h1>Socket.io Chat</h1>
+        </div>
+        <div data-role="content">
+            <h3>Nick Name</h3>
+            <input id="name" />
+            <a data-role="button" href="#chatpage">Start Chat</a>
+        </div>
+    </div>
+
+    <div data-role="page" id="chatpage">
+        <div data-role="header">
+            <h1>Socket.io Chat</h1>
+        </div>
+        <div data-role="content">
+            <input id="message" />
+            <button>Send</button>
+            <ul id=" content" data-role="listview" data-inset="true"></ul>
+
+        </div>
+    </div>
+</body>
+
+
+</html>
